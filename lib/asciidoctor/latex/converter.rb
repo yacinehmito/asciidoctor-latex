@@ -313,11 +313,14 @@ module Asciidoctor::LaTeX
       line_array += ['<script type="text/javascript">']
 
       line_array += node.lines
-      line_array += ['</script>']
+      # line_array += ['</script>']  # EXPERIMENT
       line_array += ['<br/>']
       line_array += ["\n+++\n"]
       node.lines = line_array
     end
+
+
+
 
     def handle_null(node)
 
