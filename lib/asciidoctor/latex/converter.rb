@@ -410,10 +410,20 @@ end # module Asciidoctor::LaTeX
 
 class Asciidoctor::Converter::Html5Converter
   # inject our custom code into the existing Html5Converter class (Ruby 2.0 and above)
+=begin
   if respond_to? :prepend
     prepend Asciidoctor::LaTeX::Html5ConverterExtensions
   else
     include Asciidoctor::LaTeX::Html5ConverterExtensions
   end
-  # include Asciidoctor::LaTeX::Html5ConverterExtensions
+=end
+  # @mojavelinux's prepend hack:
+  #
+  #    https://github.com/asciidoctor/asciidoctor-pdf/blob/master/lib/asciidoctor-pdf/prawn_ext/formatted_text/fragment.rb#L25-L34
+  #
+  # In the code for Html5ConverterExtensions above, I don't see any methods that
+  # need to be removed and replaced, so perhaps just the line below will suffice
+  # as the prepend hack:
+  include Asciidoctor::LaTeX::Html5ConverterExtensions
+
 end
