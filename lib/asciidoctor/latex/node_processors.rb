@@ -699,20 +699,7 @@ module Asciidoctor
 
 
     def sidebar_process
-      title = self.title
-      attr = self.attributes
-      id = attr['id']
-      if id
-        content = "\\hypertarget\{#{id}\}\{#{self.content.rstrip}\}"
-      else
-        content = self.content
-      end
-      if title
-        title  = $tex.env 'bf', title
-        $tex.env 'sidebar', "#{title}\\\\#{content}"
-      else
-        $tex.env 'sidebar', content
-      end
+      $tex.macro 'marginnote', self.content
     end
 
     def verse_process
