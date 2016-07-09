@@ -305,7 +305,8 @@ module Asciidoctor
         # content =  content.macro('obeylines')
       end
 
-      out << content << "\n\n"
+      # out << content << "\n\n"
+      out << "\n\n" << content
     end
 
     def stem_process
