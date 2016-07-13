@@ -319,7 +319,30 @@ module Asciidoctor
     end
 
     def admonition_process
-      $tex.macro 'admonition', self.style, self.content
+      def emoji codepoint
+        $tex.braces($tex.macro('emoji', [codepoint.hex].pack("U"))) + "\\,"
+      end
+      
+      # FIXME: Choose more appropriate codepoints
+      def admonition_prefix style
+        case style
+          when 'NOTE'
+            emoji "2139"
+          when 'TIP'
+            emoji "1F4A1"
+          when 'IMPORTANT'
+            emoji "2755"
+          when 'CAUTION'
+            emoji "1F525"
+          when 'WARNING'
+            emoji "26A0"
+          else
+            $tex.macro 'textbf', '#{style}: '
+        end
+      end
+
+      $tex.macro 'marginnote', "\\,#{admonition_prefix self.style}\\,#{self.content}"
+      # $tex.macro 'admonition', self.style, self.content
     end
 
     def page_break_process
@@ -686,11 +709,16 @@ module Asciidoctor
       else
         position = '[h]'
       end
-      # pos_option = "#{figure_type}}#{position}"
-      # incl_graphics = $tex.macro_opt, "width=#{width}", image
-      # $tex.env figure_type, "#{pos_option}\{#{ftext_width}\}", incl_graphics,
-      #\n\\includegraphics[width=#{width}]{#{image}}\n#{caption}\n#{align}"
-      "\\begin{#{figure_type}}#{position}\{#{ftext_width}\}\n\\centering\\includegraphics[width=#{width}]{#{image}}\n#{caption}\n#{align}\n\\end{#{figure_type}}\n"
+      if self.attributes['role'] == "tex margin"
+        figure_type = "marginfigure"
+        "\\begin{#{figure_type}}\{#{ftext_width}\}\n\\centering\\includestandalone[width=#{width}]{#{image}}\n#{caption}\n#{align}\n\\end{#{figure_type}}\n"
+      else
+        # pos_option = "#{figure_type}}#{position}"
+        # incl_graphics = $tex.macro_opt, "width=#{width}", image
+        # $tex.env figure_type, "#{pos_option}\{#{ftext_width}\}", incl_graphics,
+        #\n\\includegraphics[width=#{width}]{#{image}}\n#{caption}\n#{align}"
+        "\\begin{#{figure_type}}#{position}\{#{ftext_width}\}\n\\centering\\includegraphics[width=#{width}]{#{image}}\n#{caption}\n#{align}\n\\end{#{figure_type}}\n"
+      end
     end
 
     def preamble_process
