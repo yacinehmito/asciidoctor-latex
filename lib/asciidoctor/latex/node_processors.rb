@@ -682,7 +682,7 @@ module Asciidoctor
         image = raw_image
       end
       if self.title and self.title != ''
-        caption =   "\\caption\{#{self.attributes['title']}\}"
+        caption =   "\\caption\{#{self.title}\}"
       else
         caption = ''
       end
