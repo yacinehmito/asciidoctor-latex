@@ -30,11 +30,15 @@ module TexUtilities
   end
 
   def self.begin(arg)
-    macro('begin', arg)
+    "\\begin\{#{arg}\}"
+  end
+
+  def self.begin_opt(arg, opt)
+    "\\begin\{#{arg}\}[#{opt}]"
   end
 
   def self.end(arg)
-    macro('end', arg)
+    "\\end\{#{arg}\}"
   end
 
   def self.env(env, *args)
@@ -44,7 +48,7 @@ module TexUtilities
 
   def self.env_opt(env, opt, *args)
     body = args.pop
-    "#{self.begin(env)}[#{opt}]#{braces *args}\n#{body}\n#{self.end(env)}"
+    "#{self.begin_opt(env, opt)}#{braces *args}\n#{body}\n#{self.end(env)}"
   end
 
   # normalize the name because it is an id
@@ -320,7 +324,7 @@ module Asciidoctor
 
     def admonition_process
       def emoji codepoint
-        $tex.braces($tex.macro('emoji', [codepoint.hex].pack("U"))) + "\\,"
+        $tex.braces($tex.macro('emoji', [codepoint.hex].pack("U")))
       end
       
       # FIXME: Choose more appropriate codepoints
@@ -341,7 +345,8 @@ module Asciidoctor
         end
       end
 
-      $tex.macro 'marginnote', "\\,#{admonition_prefix self.style}\\,#{self.content}"
+      $tex.macro 'admonito', "#{admonition_prefix self.style}", self.content
+      # $tex.macro 'marginnote', "\\,#{admonition_prefix self.style}\\,#{self.content}"
       # $tex.macro 'admonition', self.style, self.content
     end
 
@@ -446,13 +451,22 @@ module Asciidoctor
       $tex.env 'equation', "#{label_line}\\ce\{#{self.content.strip}\}\n"
     end
 
+    # def handle_theorem
+    #   output = ""
+    #   if self.attributes['name']
+    #     output << $tex.begin_opt 'theorem', self.attributes['name']
+    #   else
+    #     output << $tex.begin 'theorem'
+    #   output <<
+
+
     def handle_plain(env)
 
-      if self.id and self.title
-        _title = $tex.hypertarget self.id, self.env_title
-      else
-        _title = self.env_title
-      end
+      # if self.id and self.title
+      #   _title = $tex.hypertarget self.id, self.env_title
+      # else
+      #   _title = self.env_title
+      # end
 
       if self.attributes['plain-option']
         content = $tex.region 'rm', self.content
@@ -460,7 +474,12 @@ module Asciidoctor
         content = self.content
       end
 
-      $tex.env env, "#{_title}#{label_line}#{content}\n"
+      if self.attributes['original_title']
+        $tex.env_opt env, self.attributes['original_title'], "#{label_line}#{content}\n"
+      else
+        $tex.env env, "#{label_line}#{content}\n"
+      end
+
     end
 
  ####################################################################
@@ -489,6 +508,8 @@ module Asciidoctor
           handle_texmacro
         when 'include_latex'
           handle_include_latex
+        # when 'theorem'
+        #   handle_theorem
         else
           handle_plain(env)
       end
